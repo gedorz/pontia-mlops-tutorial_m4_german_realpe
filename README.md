@@ -31,3 +31,8 @@ test
 ```bash
     pip install -r requirements.txt
 ```
+
+### 3. Is done:  Instalar integration yml
+    Se agrega las pipelines para automatismos al hacer pull_request
+    tambien se activa la opcion de ejecucion manual de pipelines
+    para esto se crea el archivo  .github\workflows\integration.yml
