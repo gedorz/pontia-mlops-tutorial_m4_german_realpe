@@ -1,6 +1,4 @@
 # --- ML & data artifacts ---
-mlruns/
-artifacts/
 models/
 *.log
 *.h5

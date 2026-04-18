@@ -3,6 +3,8 @@ import os
 import time
 import platform
 import joblib
+import mlflow
+import mlflow.sklearn
 from pathlib import Path
 from datetime import datetime
 from data_loader import load_data, preprocess_data
@@ -19,6 +21,13 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("adult-income")
+
+# MLflow tracking URI (local)
+MLFLOW_URI = "HTTP://57.151.65.76:5000"  # Cambia si usas un servidor MLflow diferente
+EXPERIMENT_NAME = "Adult-Incomen-GERMAN-REALPE"
+
+mlflow.set_tracking_uri(MLFLOW_URI)
+mlflow.set_experiment(EXPERIMENT_NAME)
 
 # Paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
