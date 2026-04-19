@@ -22,14 +22,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("adult-income")
 
-# MLflow tracking URI (local) - solo si está disponible
-MLFLOW_URI = os.getenv("MLFLOW_URI", None)
-EXPERIMENT_NAME = "Adult-Income-GERMAN-REALPE"
-
-if MLFLOW_URI:
-    mlflow.set_tracking_uri(MLFLOW_URI)
-    mlflow.set_experiment(EXPERIMENT_NAME)
-
 # Paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "raw"
