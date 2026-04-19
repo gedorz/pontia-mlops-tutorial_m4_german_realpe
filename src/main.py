@@ -22,9 +22,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger("adult-income")
 
-# MLflow tracking URI (local)
-MLFLOW_URI = "HTTP://57.151.65.76:5000"  # Cambia si usas un servidor MLflow diferente
-EXPERIMENT_NAME = "Adult-Incomen-GERMAN-REALPE"
+# MLflow tracking URI (local) - solo si está disponible
+MLFLOW_URI = os.getenv("MLFLOW_URI", None)
+EXPERIMENT_NAME = "Adult-Income-GERMAN-REALPE"
+
+if MLFLOW_URI:
+    mlflow.set_tracking_uri(MLFLOW_URI)
+    mlflow.set_experiment(EXPERIMENT_NAME)
+else:
+    mlflow.set_experiment(EXPERIMENT_NAME)  # Local mode
 
 mlflow.set_tracking_uri(MLFLOW_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
