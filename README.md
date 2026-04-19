@@ -51,7 +51,7 @@ test
     j.	Environment Variables:
     GITHUB_REPO: “gedorz/pontia-mlops-tutorial_m4_german_realpe”
 
-### 4. Is done: deployment and validation
+### 4. Is done: deployment and validation para release
     1. Se agrega los model_test al repositorio
     2. Se configura el build.yml con: Upload model to GitHub Release
     3. Se agrega la data de entrenamiento:  Download adult dataset 
@@ -59,3 +59,7 @@ test
     5. se crea un deployment and validation en github
     6. se cambia Run model tests a Ejecutar los tests desde la raíz del repo.
     7. Remove mlFlow 
+
+### 4. Is done: Crear deployment
+    1. Se agrega las varibles de secreto para la conección con RENDER_DEPLOY_HOOK
+    2. se agrega el token secrets.GITHUB_TOKEN
