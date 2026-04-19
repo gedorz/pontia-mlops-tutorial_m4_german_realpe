@@ -1,6 +1,89 @@
-# Simple ML Training Project
-This project trains a RandomForest model on tabular data.
-test
+# PontIA MLOps Tutorial - Diego Gil Sanchez
+
+Este repositorio es un tutorial completo de MLOps (Machine Learning Operations) que demuestra el ciclo de vida de un modelo de machine learning, desde el entrenamiento hasta el despliegue en producción. El proyecto entrena un modelo de clasificación RandomForest para predecir si el ingreso anual de una persona supera los $50,000 basado en el dataset "Adult Income" del UCI Machine Learning Repository.
+
+## Funcionalidad General
+
+El proyecto implementa un pipeline de ML que incluye:
+- **Carga y preprocesamiento de datos**: Limpieza, encoding de variables categóricas y escalado de features.
+- **Entrenamiento del modelo**: Un clasificador RandomForest optimizado.
+- **Evaluación**: Métricas de accuracy y reporte de clasificación.
+- **Registro y versionado**: Uso de MLflow para tracking y registro de modelos.
+- **Despliegue**: API REST con FastAPI desplegada en Render, que descarga automáticamente la última versión del modelo desde GitHub Releases.
+
+## Estructura de Directorios
+
+```
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # Workflow de GitHub Actions para despliegue en Render
+├── data/
+│   ├── raw/                    # Datos crudos del dataset Adult Income
+│   └── deployment/
+│       └── requirements.txt    # Dependencias específicas para el despliegue
+├── deployment/
+│   └── app/
+│       ├── __init__.py
+│       └── main.py             # Aplicación FastAPI para servir predicciones
+├── model_tests/                # Tests de integración del modelo
+├── models/                     # Directorio para guardar modelos entrenados localmente
+├── scripts/
+│   └── register_model.py       # Script para registrar el modelo en MLflow
+├── src/                        # Código fuente principal
+│   ├── __init__.py
+│   ├── data_loader.py          # Funciones para cargar y preprocesar datos
+│   ├── evaluate.py             # Funciones de evaluación del modelo
+│   ├── main.py                 # Script principal para entrenamiento
+│   └── model.py                # Definición y entrenamiento del modelo
+├── unit_tests/                 # Tests unitarios
+├── pytest.ini                  # Configuración de pytest
+├── render.yml                  # Configuración de despliegue para Render
+├── requirements.txt            # Dependencias del proyecto
+└── README.md                   # Este archivo
+```
+
+### Descripción de Componentes Principales
+
+- **`.github/workflows/deploy.yml`**: Automatiza el despliegue en Render mediante un webhook cuando se dispara manualmente.
+- **`data/raw/`**: Contiene los archivos `adult.data` y `adult.test` del dataset Adult Income.
+- **`deployment/app/main.py`**: API FastAPI que:
+  - Descarga el modelo desde GitHub Releases al iniciar.
+  - Expone endpoints para predicciones (`/predict`) y health check (`/health`).
+  - Maneja métricas básicas de uso.
+- **`scripts/register_model.py`**: Registra el modelo entrenado en MLflow, lo transita a "Staging" y lo marca como "champion".
+- **`src/`**:
+  - `data_loader.py`: Carga datos CSV, maneja valores faltantes, aplica label encoding y scaling.
+  - `evaluate.py`: Calcula accuracy y genera reporte de clasificación.
+  - `main.py`: Orquesta el entrenamiento completo, logging y guardado de artifacts.
+  - `model.py`: Define y entrena el RandomForestClassifier.
+- **`unit_tests/` y `model_tests/`**: Suites de tests para validar funcionalidad y rendimiento.
+
+## Cómo Poner en Marcha el Proyecto
+
+### Prerrequisitos
+
+- Python 3.10+
+- Git
+- Cuenta en GitHub (para releases)
+- Cuenta en Render (opcional para despliegue)
+- MLflow server local (opcional para registro avanzado)
+
+### Instalación y Configuración
+
+1. **Clona el repositorio**:
+   ```bash
+   git clone https://github.com/dgscoppmnd/pontia-mlops-tutorial-Diego-GilSanchez.git
+   cd pontia-mlops-tutorial-Diego-GilSanchez
+   ```
+
+2. **Instala las dependencias**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Descarga los datos** (si no están incluidos):
+   - El dataset Adult Income debe estar en `data/raw/adult.data` y `data/raw/adult.test`.
+   - Puedes descargarlos desde [UCI Repository](https://archive.ics.uci.edu/dataset/2/adult).
 
 # Servicios en ejecución
     ✅ Data loader (local data) - `para entrenamiento 
@@ -39,16 +122,16 @@ test
 
 
 ### 4. Is done:  Conección con render Crear un nuevo Web Service
-    a.	Seleccionar repositorio
-    b.	Name: (pontia-mlops-tutorial_m4_german_realpe)
-    c.	Language/Runtime: `Python`
-    d.	Branch: ‘main’
-    e.	Region: ‘Frankfurt (EU Central)
-    f.	Root Directory: ‘deployment’
-    g.	Build Command: `deployment/ $ pip install -r requirements.txt`
-    h.	Start Command: `deployment/ $ uvicorn app.main:app --host 0.0.0.0 --port 8080`
-    i.	Instance Type: `Free`
-    j.	Environment Variables:
+    1.	Seleccionar repositorio
+    2.	Name: (pontia-mlops-tutorial_m4_german_realpe)
+    3.	Language/Runtime: `Python`
+    4.	Branch: ‘main’
+    5.	Region: ‘Frankfurt (EU Central)
+    6.	Root Directory: ‘deployment’
+    7.	Build Command: `deployment/ $ pip install -r requirements.txt`
+    8.	Start Command: `deployment/ $ uvicorn app.main:app --host 0.0.0.0 --port 8080`
+    9.	Instance Type: `Free`
+    10.	Environment Variables:
     GITHUB_REPO: “gedorz/pontia-mlops-tutorial_m4_german_realpe”
 
 ### 4. Is done: deployment and validation para release
@@ -63,3 +146,78 @@ test
 ### 4. Is done: Crear deployment
     1. Se agrega las varibles de secreto para la conección con RENDER_DEPLOY_HOOK
     2. se agrega el token secrets.GITHUB_TOKEN
+
+
+### Despliegue
+
+1. **Prepara el despliegue**:
+   - Crea un release en GitHub con los artifacts del modelo (model.pkl, scaler.pkl, encoders.pkl).
+   - Actualiza `render.yml` con tu repositorio de GitHub.
+
+2. **Despliega en Render**:
+   - Conecta tu repositorio a Render.
+   - Usa la configuración en `render.yml`.
+   - El workflow `.github/workflows/deploy.yml` puede disparar despliegues automáticos.
+
+3. **Prueba la API**:
+   - Una vez desplegada, la API estará disponible en la URL de Render.
+   - Endpoint `/predict`: Envía datos JSON para predicciones.
+   - Endpoint `/health`: Verifica el estado del servicio.
+
+## Simulación de un Proceso de Rollback
+
+En un entorno de producción, los rollbacks son necesarios cuando una nueva versión del modelo introduce problemas (como degradación de performance o errores). Este proyecto simula un rollback usando MLflow para versionado de modelos.
+
+### Escenario de Rollback
+
+Imagina que has desplegado la versión 2.0 del modelo, pero los usuarios reportan una disminución en la accuracy. Necesitas revertir rápidamente a la versión 1.0 anterior.
+
+### Pasos para Simular el Rollback
+
+1. **Identifica las versiones**:
+   - En MLflow UI, revisa el modelo registrado (ej. "adult-income-model").
+   - Versión 2.0 está marcada como "champion" (en producción).
+   - Versión 1.0 está en "Archived" o "Staging".
+
+2. **Cambia el alias en MLflow**:
+   ```python
+   from mlflow.tracking import MlflowClient
+
+   client = MlflowClient()
+   model_name = "adult-income-model"
+
+   # Remueve el alias "champion" de la versión 2.0
+   client.delete_registered_model_alias(model_name, "champion")
+
+   # Asigna "champion" a la versión 1.0
+   client.set_registered_model_alias(model_name, "champion", "1")
+   ```
+
+3. **Actualiza el despliegue**:
+   - Si la app descarga automáticamente desde GitHub Releases, crea un nuevo release con la versión 1.0 del modelo.
+   - Actualiza el tag en `render.yml` o variables de entorno para apuntar al release anterior.
+   - Dispara el workflow de despliegue para redeployar con la versión anterior.
+
+4. **Verifica el rollback**:
+   - Monitorea las métricas de la API (`/health`).
+   - Ejecuta tests de integración para confirmar que la versión anterior funciona correctamente.
+   - Notifica a stakeholders sobre el rollback.
+
+### Mejores Prácticas para Rollbacks
+
+- Mantén múltiples versiones del modelo en staging.
+- Implementa canary deployments para probar nuevas versiones con un subset de usuarios.
+- Automatiza el proceso de rollback con scripts o pipelines CI/CD.
+- Registra métricas de performance en producción para detectar issues temprano.
+
+## Contribución
+
+Si deseas contribuir:
+1. Crea un fork del repositorio.
+2. Crea una rama para tu feature.
+3. Ejecuta los tests antes de hacer commit.
+4. Abre un Pull Request con descripción detallada.
+
+## Licencia
+
+Este proyecto es para fines educativos. Consulta la licencia del dataset Adult Income para uso comercial.    
