@@ -21,6 +21,25 @@ logger = logging.getLogger(__name__)
 
 temp_files = []
 
+Apititulo = "API de Predicción con FastAPI - Proyecto Final: API de Predicción con FastAPI"
+description = """
+    ## Objetivos:
+        1: Implementar y validar la etapa de Integración (CI) para automatizar pruebas unitarias, integración de código y verificación de calidad, logrando al menos un 80 porciento en cobertura de pruebas.
+        2: Completar la etapa de Build para generar artefactos ejecutables (como modelos o contenedores) de manera reproducible, utilizando herramientas como Docker o pipelines de CI/CD.
+        3: Desarrollar la etapa de Deploy para desplegar la aplicación en un entorno de producción (ej. nube o servidor local), asegurando escalabilidad y monitoreo básico, con el fin de alcanzar el 100% de la nota.
+    ## Tecnologías utilizadas:
+        - Python 3.10+
+        - FastAPI
+        - github API
+            - joblib
+            - requests
+            - pandas
+        - Render: Plataforma para desplegar aplicaciones web
+
+"""
+
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global model, scaler, encoders, temp_files
@@ -91,7 +110,10 @@ async def lifespan(app: FastAPI):
         except:
             pass
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, description=description, title=Apititulo,contact={
+    "name": "Grupo 2 - IA0226",
+    "email": "@Diego.Gil.IA0226, @germandario.realpe.IA0226 , @said.elkhababi.IA0226 y @javier.ortega.ia0226. "
+})
 
 @app.get("/health")
 def health():
