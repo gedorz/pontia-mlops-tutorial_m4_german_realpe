@@ -56,4 +56,5 @@ test
     2. Se configura el build.yml con: Upload model to GitHub Release
     3. Se agrega la data de entrenamiento:  Download adult dataset 
     4. Se suprime: Register model in MLflow
-    5. se crea un deployment and validation en github 
+    5. se crea un deployment and validation en github
+    6. se cambia a cd directorio 
