@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download adult dataset
+      - name: Download Adult dataset
         run: |
           mkdir -p data/raw
           curl -o data/raw/adult.data https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
@@ -34,10 +34,13 @@ jobs:
       
       - name: Train and save model
         run: |
-          python src/main.py
+          cd src
+          python main.py
           
       - name: Run model tests
-        run: python model_tests/test_model.py
+        run: |
+          cd model_tests
+          python test_model.py
 
       - name: Upload model to GitHub Release
         uses: softprops/action-gh-release@v1
@@ -51,4 +54,4 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
