@@ -1,8 +1,10 @@
-# PontIA MLOps Tutorial 
-      - Diego Gil Sanchez
-      - German Dario realpe
+# PontIA MLOps Tutorial - Equipo M4
 
-Este repositorio es un tutorial completo de MLOps (Machine Learning Operations) que demuestra el ciclo de vida de un modelo de machine learning, desde el entrenamiento hasta el despliegue en producción. El proyecto entrena un modelo de clasificación RandomForest para predecir si el ingreso anual de una persona supera los $50,000 basado en el dataset "Adult Income" del UCI Machine Learning Repository.
+**Integrantes del Proyecto:**
+- Diego Gil Sánchez
+- German Dario Realpe
+
+Este repositorio es un tutorial completo de **MLOps (Machine Learning Operations)** que implementa el ciclo de vida completo de un modelo de machine learning: desde la integración (CI), construcción (Build), hasta el despliegue en producción (Deploy).
 
 ## Funcionalidad General
 
@@ -74,6 +76,8 @@ El proyecto implementa un pipeline de ML que incluye:
 
 1. **Clona el repositorio**:
    ```bash
+   git clone https://github.com/gedorz/pontia-mlops-tutorial_m4_german_realpe.git
+   cd pontia-mlops-tutorial_m4_german_realpe
    ```
 
 2. **Instala las dependencias**:
@@ -148,21 +152,72 @@ El proyecto implementa un pipeline de ML que incluye:
     2. se agrega el token secrets.GITHUB_TOKEN
 
 
-### Despliegue
+## Despliegue en Render
 
-1. **Prepara el despliegue**:
-   - Crea un release en GitHub con los artifacts del modelo (model.pkl, scaler.pkl, encoders.pkl).
-   - Actualiza `render.yml` con tu repositorio de GitHub.
+### Opción 1: Despliegue con Infrastructure as Code (IaC)
 
-2. **Despliega en Render**:
-   - Conecta tu repositorio a Render.
-   - Usa la configuración en `render.yml`.
-   - El workflow `.github/workflows/deploy.yml` puede disparar despliegues automáticos.
+El proyecto incluye un archivo `render.yml` que define toda la infraestructura como código. Esto permite replicar el despliegue de forma consistente sin configuración manual por UI.
 
-3. **Prueba la API**:
-   - Una vez desplegada, la API estará disponible en la URL de Render.
-   - Endpoint `/predict`: Envía datos JSON para predicciones.
-   - Endpoint `/health`: Verifica el estado del servicio.
+**Configuración del `render.yml`:**
+```yaml
+services:
+  - type: web
+    name: pontia-mlops-api
+    env: python
+    plan: free
+    region: frankfurt
+    buildCommand: "cd deployment && pip install -r requirements.txt"
+    startCommand: "cd deployment && uvicorn app.main:app --host 0.0.0.0 --port 8080"
+    envVars:
+      - key: GITHUB_REPO
+        value: gedorz/pontia-mlops-tutorial_m4_german_realpe
+```
+
+**Pasos para desplegar con `render.yml`:**
+
+1. **Conecta tu repositorio a Render**:
+   - Ve a [Render Dashboard](https://dashboard.render.com)
+   - Selecciona "New +" → "Web Service" → "Build and deploy from Git"
+   - Conecta tu repositorio GitHub `pontia-mlops-tutorial_m4_german_realpe`
+
+2. **Render detectará automáticamente la configuración**:
+   - El servicio se creará con los parámetros definidos en `render.yml`
+   - Plan: Free
+   - Región: Frankfurt (EU Central)
+   - Python 3.10
+
+3. **Despliegue automático**:
+   - Después del primer despliegue, cada push a `main` dispara un nuevo build y despliegue automáticamente
+   - Logs disponibles en Render Dashboard para debugging
+
+4. **Verifica la API**:
+   ```bash
+   # Health check
+   curl https://tu-servicio.onrender.com/health
+   
+   # Predicción (ejemplo)
+   curl -X POST https://tu-servicio.onrender.com/predict \
+     -H "Content-Type: application/json" \
+     -d '{"age": 30, "education": "Bachelors", "occupation": "Tech-support", ...}'
+   ```
+
+### Opción 2: Despliegue Manual (sin `render.yml`)
+
+Si prefieres configurar manualmente en la UI de Render:
+
+1. **Crea un Web Service**:
+   - Nombre: `pontia-mlops-api`
+   - Repositorio: `https://github.com/gedorz/pontia-mlops-tutorial_m4_german_realpe`
+   - Rama: `main`
+   - Lenguaje: Python
+   - Region: Frankfurt
+   - Build Command: `cd deployment && pip install -r requirements.txt`
+   - Start Command: `cd deployment && uvicorn app.main:app --host 0.0.0.0 --port 8080`
+
+2. **Configura variables de entorno**:
+   - `GITHUB_REPO`: `gedorz/pontia-mlops-tutorial_m4_german_realpe`
+
+3. **Dispara el despliegue** y espera a que esté en verde
 
 ## Simulación de un Proceso de Rollback
 
@@ -210,14 +265,169 @@ Imagina que has desplegado la versión 2.0 del modelo, pero los usuarios reporta
 - Automatiza el proceso de rollback con scripts o pipelines CI/CD.
 - Registra métricas de performance en producción para detectar issues temprano.
 
-## Contribución
+## Simulación de un Proceso de Rollback
 
-Si deseas contribuir:
-1. Crea un fork del repositorio.
-2. Crea una rama para tu feature.
-3. Ejecuta los tests antes de hacer commit.
-4. Abre un Pull Request con descripción detallada.
+En un entorno de producción, los rollbacks son necesarios cuando una nueva versión introduce problemas. Este proyecto implementa rollback mediante GitHub Releases y Render.
 
-## Licencia
+### Escenario de Rollback
 
-Este proyecto es para fines educativos. Consulta la licencia del dataset Adult Income para uso comercial.    
+Supongamos que has desplegado una nueva versión del modelo pero los usuarios reportan una disminución en accuracy. Necesitas revertir rápidamente.
+
+### Pasos para Realizar un Rollback
+
+**1. Identifica la versión anterior en GitHub Releases:**
+```bash
+# Ver releases disponibles
+git tag
+
+# O consulta en: https://github.com/gedorz/pontia-mlops-tutorial_m4_german_realpe/releases
+```
+
+**2. Revierte los cambios localmente:**
+```bash
+# Revierte el último commit
+git revert HEAD
+
+# O revierte a un commit específico
+git revert <commit-hash>
+```
+
+**3. Pushea los cambios a main:**
+```bash
+git push origin main
+```
+
+**4. Render redeploya automáticamente:**
+- El webhook de Render se dispara al detectar cambios en `main`
+- La API se actualiza con la versión anterior
+- Monitorea el despliegue en Render Dashboard
+
+**5. Verifica que el rollback funcionó:**
+```bash
+# Health check
+curl https://tu-servicio.onrender.com/health
+
+# Prueba la API con datos de test
+curl -X POST https://tu-servicio.onrender.com/predict \
+  -H "Content-Type: application/json" \
+  -d '{...}'
+```
+
+### Mejores Prácticas para Rollbacks
+
+- Mantén un historial limpio de releases en GitHub
+- Usa tags descriptivos: `model-v1.0`, `model-v1.1`, etc.
+- Monitorea métricas en producción (accuracy, latencia, error rate)
+- Documenta cambios en los commits y releases
+- Prueba todas las versiones en staging antes de producción
+
+## Git Workflow y Pull Requests
+
+Este proyecto sigue un workflow profesional de Git con Code Review.
+
+### Estructura de Ramas
+
+- **`main`**: Rama de producción. Requiere PRs mergeadas con CI en verde
+- **`feature/*`**: Ramas para nuevas características
+- **`hotfix/*`**: Ramas para correcciones urgentes
+
+### Crear un Pull Request
+
+```bash
+# 1. Crea una rama para tu cambio
+git checkout -b feature/nombre-descriptivo
+
+# 2. Realiza tus cambios
+# ... edita archivos ...
+
+# 3. Haz commit con mensaje descriptivo
+git add .
+git commit -m "feat: descripción clara del cambio"
+
+# 4. Pushea la rama
+git push origin feature/nombre-descriptivo
+
+# 5. En GitHub, abre un Pull Request:
+#    - Describe qué cambia y por qué
+#    - Linkea issues relacionados si aplica
+#    - Solicita revisión de compañeros
+```
+
+### Merge a Main
+
+- [ ] Tests unitarios pasando (integration.yml)
+- [ ] Code review aprobado (mínimo 1 revisor)
+- [ ] Rama está actualizada con main
+- [ ] Todos los comentarios resueltos
+- **Merge**: GitHub Actions automáticamente dispara `build.yml`
+
+### Después del Merge
+
+1. **Build Pipeline** entrena el modelo automáticamente
+2. **Model Tests** se ejecutan en el dataset de validación
+3. **GitHub Release** se crea con los artifacts (model.pkl, scaler.pkl, encoders.pkl)
+4. **Despliegue automático** a Render (si el webhook está configurado)
+
+## Verificación de Pipelines en GitHub Actions
+
+El proyecto cuenta con **3 pipelines automatizadas**:
+
+### 1. Integration Pipeline (`.github/workflows/integration.yml`)
+- **Se dispara**: En cada Pull Request y manualmente
+- **Qué hace**:
+  - Instala dependencias
+  - Ejecuta tests unitarios
+  - Reporta cobertura de código
+  - Comenta resultados en el PR
+- **Para pasar**: Todos los tests en `unit_tests/` deben pasar
+
+### 2. Build Pipeline (`.github/workflows/build.yml`)
+- **Se dispara**: En cada push a `main`
+- **Qué hace**:
+  - Descarga dataset Adult Income
+  - Entrena el modelo RandomForest
+  - Ejecuta tests de integración
+  - Crea release en GitHub con artifacts
+- **Para pasar**: Tests de integración en `model_tests/` deben pasar
+
+### 3. Deploy Pipeline (`.github/workflows/deploy.yml`)
+- **Se dispara**: Manualmente o con webhook desde Render
+- **Qué hace**:
+  - Dispara despliegue automático en Render
+  - Actualiza la API en producción
+- **Para pasar**: El servicio debe iniciar correctamente en Render
+
+### Cómo Verificar el Estado de los Pipelines
+
+1. **En GitHub**:
+   - Ve a tu repositorio → pestaña "Actions"
+   - Observa el estado de cada workflow (✅ verde = pasó, ❌ rojo = falló)
+   - Haz click en un workflow para ver logs detallados
+
+2. **En una PR**:
+   - Observa la sección "Checks" al final de la descripción
+   - Los tests comentados muestran cobertura y resultados
+
+3. **Localmente** (antes de hacer push):
+   ```bash
+   # Ejecuta tests locales para evitar fallos
+   pytest unit_tests/ --cov
+   pytest model_tests/
+   ```
+
+## Testing
+
+### Tests Unitarios
+```bash
+# Ejecuta todos los tests unitarios con cobertura
+pytest unit_tests/ --cov=src --cov-report=html
+
+# O individual
+pytest unit_tests/test_data_loader.py -v
+```
+
+### Tests de Integración
+```bash
+# Ejecuta tests del modelo
+pytest model_tests/test_model.py -v
+```

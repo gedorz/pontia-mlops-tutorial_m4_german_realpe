@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 temp_files = []
 
-Apititulo = "API de Predicción con FastAPI - Proyecto Final: API de Predicción con FastAPI"
+Apititulo = "Proyecto Final: API de Predicción con FastAPI"
 description = """
     ## Objetivos:
         1: Implementar y validar la etapa de Integración (CI) para automatizar pruebas unitarias, integración de código y verificación de calidad, logrando al menos un 80 porciento en cobertura de pruebas.
