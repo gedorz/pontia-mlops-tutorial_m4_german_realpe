@@ -29,11 +29,6 @@ EXPERIMENT_NAME = "Adult-Income-GERMAN-REALPE"
 if MLFLOW_URI:
     mlflow.set_tracking_uri(MLFLOW_URI)
     mlflow.set_experiment(EXPERIMENT_NAME)
-else:
-    mlflow.set_experiment(EXPERIMENT_NAME)  # Local mode
-
-mlflow.set_tracking_uri(MLFLOW_URI)
-mlflow.set_experiment(EXPERIMENT_NAME)
 
 # Paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
