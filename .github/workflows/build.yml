@@ -39,8 +39,7 @@ jobs:
           
       - name: Run model tests
         run: |
-          cd model_tests
-          python test_model.py
+          python -m pytest model_tests/test_model.py
 
       - name: Upload model to GitHub Release
         uses: softprops/action-gh-release@v1

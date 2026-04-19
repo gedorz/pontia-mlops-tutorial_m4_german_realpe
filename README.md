@@ -57,4 +57,4 @@ test
     3. Se agrega la data de entrenamiento:  Download adult dataset 
     4. Se suprime: Register model in MLflow
     5. se crea un deployment and validation en github
-    6. se cambia a cd directorio 
+    6. se cambia Run model tests a Ejecutar los tests desde la raíz del repo
