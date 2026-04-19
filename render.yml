@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: pontia-mlops-api
+    env: python
+    plan: free
+    region: frankfurt
+    buildCommand: "cd deployment && pip install -r requirements.txt"
+    startCommand: "cd deployment && uvicorn app.main:app --host 0.0.0.0 --port 8080"
+    envVars:
+      - key: GITHUB_REPO
+        value: gedorz/pontia-mlops-tutorial_m4_german_realpe
+      - key: PYTHON_VERSION
+        value: 3.10
+    git:
+      repo: https://github.com/gedorz/pontia-mlops-tutorial_m4_german_realpe.git
+      branch: main
+    autoDeploy: true
