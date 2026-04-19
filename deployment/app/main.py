@@ -26,12 +26,16 @@ async def lifespan(app: FastAPI):
     global model, scaler, encoders, temp_files
     
     try:
-        # Get GitHub repo info from environment or use defaults
+        # Get GitHub repo info and token from environment
         github_repo = os.getenv("GITHUB_REPO", "tu-usuario/tu-repo")
+        github_token = os.getenv("GITHUB_TOKEN")
+        headers = {"Accept": "application/vnd.github+json", "User-Agent": "render-github-release-client"}
+        if github_token:
+            headers["Authorization"] = f"token {github_token}"
         
         # Download latest release from GitHub
         logger.info(f"Fetching latest release from {github_repo}...")
-        response = requests.get(f"https://api.github.com/repos/{github_repo}/releases/latest")
+        response = requests.get(f"https://api.github.com/repos/{github_repo}/releases/latest", headers=headers, timeout=30)
         response.raise_for_status()
         release = response.json()
         
@@ -49,7 +53,7 @@ async def lifespan(app: FastAPI):
         # Download and load model
         logger.info(f"Downloading model, scaler, and encoders...")
         
-        model_data = requests.get(assets_to_download['model.pkl']).content
+        model_data = requests.get(assets_to_download['model.pkl'], headers=headers, timeout=30).content
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pkl') as f:
             f.write(model_data)
             model_path = f.name
@@ -57,7 +61,7 @@ async def lifespan(app: FastAPI):
         model = joblib.load(model_path)
         logger.info("Model loaded successfully")
         
-        scaler_data = requests.get(assets_to_download['scaler.pkl']).content
+        scaler_data = requests.get(assets_to_download['scaler.pkl'], headers=headers, timeout=30).content
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pkl') as f:
             f.write(scaler_data)
             scaler_path = f.name
@@ -65,7 +69,7 @@ async def lifespan(app: FastAPI):
         scaler = joblib.load(scaler_path)
         logger.info("Scaler loaded successfully")
         
-        encoders_data = requests.get(assets_to_download['encoders.pkl']).content
+        encoders_data = requests.get(assets_to_download['encoders.pkl'], headers=headers, timeout=30).content
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pkl') as f:
             f.write(encoders_data)
             encoders_path = f.name
