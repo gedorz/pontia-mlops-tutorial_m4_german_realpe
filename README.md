@@ -1,4 +1,6 @@
-# PontIA MLOps Tutorial - Diego Gil Sanchez
+# PontIA MLOps Tutorial 
+      - Diego Gil Sanchez
+      - German Dario realpe
 
 Este repositorio es un tutorial completo de MLOps (Machine Learning Operations) que demuestra el ciclo de vida de un modelo de machine learning, desde el entrenamiento hasta el despliegue en producción. El proyecto entrena un modelo de clasificación RandomForest para predecir si el ingreso anual de una persona supera los $50,000 basado en el dataset "Adult Income" del UCI Machine Learning Repository.
 
@@ -72,8 +74,6 @@ El proyecto implementa un pipeline de ML que incluye:
 
 1. **Clona el repositorio**:
    ```bash
-   git clone https://github.com/dgscoppmnd/pontia-mlops-tutorial-Diego-GilSanchez.git
-   cd pontia-mlops-tutorial-Diego-GilSanchez
    ```
 
 2. **Instala las dependencias**:
