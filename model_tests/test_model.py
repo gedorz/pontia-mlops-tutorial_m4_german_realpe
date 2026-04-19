@@ -4,6 +4,7 @@ import joblib  # or pickle, depending on your serialization method
 import numpy as np
 from sklearn.metrics import accuracy_score
 import pandas as pd
+from src.data_loader import load_data, preprocess_data
 
 def test_model_loading():
     model_path = 'models/model.pkl'
@@ -28,9 +29,9 @@ def test_prediction_values():
 
 def test_model_accuracy():
     model = joblib.load('models/model.pkl')
-    test_data = pd.read_csv('data/raw/adult.test', header=None, skiprows=1)
-    X_test = test_data.iloc[:, :-1]
-    y_test = test_data.iloc[:, -1].str.strip().str.replace('.', '', regex=False)
+    train_df, test_df = load_data('data/raw/adult.data', 'data/raw/adult.test')
+    X_train, X_test, y_train, y_test, scaler, encoders = preprocess_data(train_df, test_df)
+
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
     assert accuracy >= 0.80, f"Model accuracy below expected threshold: {accuracy:.2f}"
